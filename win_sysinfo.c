@@ -8,7 +8,6 @@
  #include <psapi.h>
  #include <powrprof.h>
  
- // For NtQuerySystemInformation and related functions
  #include <winternl.h>
  
  // Expose telemetry struct and function for FFI
