@@ -174,18 +174,65 @@
  extern "C" {
  #endif
 
+ #define MAX_DISKS 26
+
+ typedef struct {
+     char mount[4]; // e.g. "C:\"
+     unsigned long long total_space;
+     unsigned long long free_space;
+     unsigned long long used_space;
+ } DiskInfo;
+
+ typedef struct {
+     unsigned long long total_phys;
+     unsigned long long free_phys;
+     unsigned long memory_load;
+     unsigned long long total_virtual;
+     unsigned long long free_virtual;
+ } MemoryInfo;
+
  typedef struct {
      double uptime;
      double user_time;
      double system_time;
      double idle_time;
- } TelemetryInfo;
+     MemoryInfo mem;
+     DiskInfo disks[MAX_DISKS];
+     int num_disks;
+ } TelemetryInfoFull;
 
- __declspec(dllexport) int sysinfo_get_telemetry(TelemetryInfo* out) {
+ __declspec(dllexport) int sysinfo_get_telemetry_full(TelemetryInfoFull* out) {
      if (!out) return 0;
      out->uptime = get_uptime();
      if (!get_cpu_times(&out->user_time, &out->system_time, &out->idle_time)) {
          return 0;
+     }
+     // Memory
+     MEMORYSTATUSEX mem_info;
+     if (!get_memory_info(&mem_info)) {
+         return 0;
+     }
+     out->mem.total_phys = mem_info.ullTotalPhys;
+     out->mem.free_phys = mem_info.ullAvailPhys;
+     out->mem.memory_load = mem_info.dwMemoryLoad;
+     out->mem.total_virtual = mem_info.ullTotalVirtual;
+     out->mem.free_virtual = mem_info.ullAvailVirtual;
+     // Disks
+     out->num_disks = 0;
+     char drive[4] = "A:\\";
+     DWORD drives = GetLogicalDrives();
+     for (int i = 0; i < 26; i++) {
+         if (drives & (1 << i)) {
+             drive[0] = 'A' + i;
+             ULARGE_INTEGER free_bytes, total_bytes, total_free_bytes;
+             if (get_disk_usage(drive, &free_bytes, &total_bytes, &total_free_bytes)) {
+                 DiskInfo* d = &out->disks[out->num_disks++];
+                 snprintf(d->mount, sizeof(d->mount), "%s", drive);
+                 d->total_space = total_bytes.QuadPart;
+                 d->free_space = free_bytes.QuadPart;
+                 d->used_space = total_bytes.QuadPart - free_bytes.QuadPart;
+             }
+         }
      }
      return 1;
  }
