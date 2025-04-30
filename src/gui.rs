@@ -1,11 +1,8 @@
 use chrono::{DateTime, Utc};
 use iced::{
-    font, theme, 
     widget::{canvas::{Cache, Frame, Geometry}, Column, Container, Scrollable, Text}, 
-    Alignment, Application, Color, Command, Element, Font, Length, Settings, Size, Theme,
+    Alignment, Application, Command, Element, Length, Size, Settings, Theme, Renderer,
 };
-
-use iced_widget::core::Length as PlottersLength;
 use plotters::prelude::*;
 use plotters_iced::{Chart, ChartWidget};
 use std::{
@@ -84,9 +81,9 @@ impl Application for TelemetryApp {
     }
 
     fn view(&self) -> Element<Message> {
-        let chart = ChartWidget::new(self)
-            .width(PlottersLength::Fill)
-            .height(PlottersLength::Fixed(CHART_HEIGHT))
+        let chart = ChartWidget::<Message, Theme, Renderer, _>::new(self)
+            .width(Length::Fill)
+            .height(Length::Fixed(CHART_HEIGHT))
             .into();
             
         let content = Column::new()
@@ -106,7 +103,7 @@ impl Application for TelemetryApp {
         .center_y()
         .into()
     }
-    
+
     fn subscription(&self) -> iced::Subscription<Message> {
         iced::time::every(Duration::from_millis(100))
             .map(|_| Message::Tick)
@@ -125,8 +122,7 @@ impl Chart<Message> for TelemetryApp {
         bounds: Size,
         draw_fn: F,
     ) -> Geometry {
-        // Create a geometry in a way that's compatible with multiple Iced versions
-        Geometry::new(bounds.width, bounds.height)
+        self.cache.draw(bounds, draw_fn)
     }
 
     fn build_chart<DB: DrawingBackend>(&self, _state: &Self::State, mut chart_builder: ChartBuilder<DB>) {
@@ -158,7 +154,7 @@ impl Chart<Message> for TelemetryApp {
                 self.cpu_data.iter().map(|(time, usage)| (*time, *usage)),
                 &RGBColor(0, 175, 255),
             ))
-            .expect("Failed to draw chart");
+            .expect("Failed to draw");
     }
 }
 
