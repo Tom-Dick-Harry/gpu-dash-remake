@@ -3,7 +3,14 @@ name = "sysinfo_server"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "gui"
+path = "src/gui.rs"
+
 [dependencies]
+iced = { version = "0.12", features = ["tokio", "canvas"] }
 tiny_http = "0.12.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+reqwest = { version = "0.11", features = ["json", "blocking"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
