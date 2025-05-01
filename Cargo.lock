@@ -3353,6 +3353,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "iced",
+ "iced_core 0.13.2",
  "iced_graphics 0.13.0",
  "iced_widget 0.13.4",
  "once_cell",

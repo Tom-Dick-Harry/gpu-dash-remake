@@ -1,9 +1,10 @@
 use chrono::{DateTime, Utc};
 use iced::{
     widget::{canvas::{Cache, Frame, Geometry}, Column, Container, Scrollable, Text}, 
-    Alignment, Application, Command, Element, Length, Size, Settings, Theme, Renderer,
+    Alignment, Application, Command, Element, Length, Size, Settings, Theme, Renderer
 };
-use plotters::prelude::*;
+use iced_core::Length as IcedLength;
+use plotters::{chart, prelude::*};
 use plotters_iced::{Chart, ChartWidget};
 use std::{
     collections::VecDeque,
@@ -81,9 +82,9 @@ impl Application for TelemetryApp {
     }
 
     fn view(&self) -> Element<Message> {
-        let chart = ChartWidget::<Message, Theme, Renderer, _>::new(self)
-            .width(Length::Fill)
-            .height(Length::Fixed(CHART_HEIGHT))
+        let chart: Element<Message> = ChartWidget::<Message, Theme, Renderer, _>::new(self)
+            .width(IcedLength::Fill)
+            .height(IcedLength::Fixed(CHART_HEIGHT))
             .into();
             
         let content = Column::new()
@@ -122,7 +123,7 @@ impl Chart<Message> for TelemetryApp {
         bounds: Size,
         draw_fn: F,
     ) -> Geometry {
-        self.cache.draw(bounds, draw_fn)
+        self.cache.draw((), bounds, draw_fn)
     }
 
     fn build_chart<DB: DrawingBackend>(&self, _state: &Self::State, mut chart_builder: ChartBuilder<DB>) {
