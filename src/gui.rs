@@ -1,5 +1,5 @@
 use iced::{Application, Command, Element, executor, Settings, Subscription, Theme};
-use iced::widget::{Column, Text, Row, Container, canvas, Canvas};
+use iced::widget::{Column, Text, Container};
 use serde::Deserialize;
 use std::time::{Duration, Instant};
 
@@ -100,7 +100,13 @@ async fn fetch_telemetry() -> Option<TelemetryJsonFull> {
     resp.json().await.ok()
 }
 
-#[tokio::main]
-async fn main() -> iced::Result {
+// Function that can be called from the launcher
+pub fn run_gui() -> iced::Result {
     Dashboard::run(Settings::default())
+}
+
+// Original standalone entry point
+#[tokio::main]
+pub async fn main() -> iced::Result {
+    run_gui()
 }
