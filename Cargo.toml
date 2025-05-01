@@ -1,8 +1,28 @@
 [package]
 name = "sysinfo_server"
 version = "0.1.0"
+authors = ["Suvan GS <suvan.gowrishanker.204@gmail.com>"]
+description = "A simple tool to get realtime system information"
+repository = "https://github.com/Tom-Dick-Harry/gpu-dash-remake"
 edition = "2021"
+include = [
+    "/src/**/*.rs",
+    "*.c",
+    "*.lib",
+    "*.dll",
+]
 
+# Main binary (combined server and GUI)
+[[bin]]
+name = "sysinfo_dashboard"
+path = "src/main.rs"
+
+# Standalone server 
+[[bin]]
+name = "server"
+path = "src/server.rs"
+
+# Standalone GUI
 [[bin]]
 name = "gui"
 path = "src/gui.rs"
